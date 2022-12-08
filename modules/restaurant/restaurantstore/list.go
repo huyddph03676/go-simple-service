@@ -14,6 +14,8 @@ func (s *sqlStore) ListDataByCondition(
 	moreKeys ...string,
 ) ([]restaurantmodel.RestaurantCreate, error) {
 
+	paging.Fulfill()
+
 	var result []restaurantmodel.RestaurantCreate
 	db := s.db
 
