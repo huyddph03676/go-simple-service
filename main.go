@@ -39,35 +39,14 @@ func runService(db *gorm.DB) error {
 	})
 
 	// CRUD
+	// => return cursor pointer
 	appCtx := component.NewAppContext(db)
 
 	restaurants := r.Group("/restaurants")
 	{
 		restaurants.POST("", ginrestaurant.CreateRestaurant(appCtx))
 
-		restaurants.GET("/:id", func(ctx *gin.Context) {
-			id, err := strconv.Atoi(ctx.Param("id"))
-
-			if err != nil {
-				ctx.JSON(401, gin.H{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			var data Restaurant
-
-			if err := db.Where("id = ?", id).First(&data).Error; err != nil {
-				ctx.JSON(401, gin.H{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			ctx.JSON(http.StatusOK, data)
-		})
+		restaurants.GET("/:id", ginrestaurant.GetOneRestaurant(appCtx))
 
 		restaurants.GET("", ginrestaurant.ListRestaurant(appCtx))
 

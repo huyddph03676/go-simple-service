@@ -23,7 +23,10 @@ func CreateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 			return
 		}
 
+		// appCtx.GetMainDBConnection() return db cursor pointer => store = sqlStore{db: db}
 		store := restaurantstore.NewSQLStore(appCtx.GetMainDBConnection())
+
+		// => store have "Create" method so that its interface is also { Create: func() }
 		biz := restaurantbiz.NewCreateRestaurantBiz(store)
 
 		if err := biz.CreateRestaurant(ctx.Request.Context(), &data); err != nil {
