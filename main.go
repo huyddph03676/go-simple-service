@@ -2,17 +2,24 @@ package main
 
 import (
 	"go-simple-service/component"
+	"go-simple-service/modules/restaurant/restaurantmodel"
 	"go-simple-service/modules/restaurant/restauranttransport/ginrestaurant"
 	"log"
-	"time"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func main() {
-	dsn := "200lab:200lab@tcp(127.0.0.1:3306)/200lab?charset=utf8mb4&parseTime=True&loc=Local"
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Some error occured with env file. Err: %s", err)
+	}
+
+	dsn := os.Getenv("DB_STRING")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -20,7 +27,7 @@ func main() {
 	}
 
 	// Migrate the schema
-	db.AutoMigrate(&Restaurant{})
+	db.AutoMigrate(&restaurantmodel.RestaurantCreate{})
 
 	if err := runService(db); err != nil {
 		log.Fatalln(err)
@@ -55,26 +62,4 @@ func runService(db *gorm.DB) error {
 	}
 
 	return r.Run()
-}
-
-type Restaurant struct {
-	Id      int       `json:"id" gorm:"column:id;"`
-	Name    *string   `json:"name" gorm:"column:name;"`
-	Addr    *string   `json:"addr" gorm:"column:addr;"`
-	Created time.Time `json:"created_at" gorm:"autoCreateTime; column:created_at"`
-	Updated time.Time `json:"updated_at" gorm:"autoCreateTime; column:updated_at"`
-}
-
-func (Restaurant) TableName() string {
-	return "restaurants"
-}
-
-type RestaurantUpdate struct {
-	Name    *string    `json:"name" gorm:"column:name"`
-	Addr    *string    `json:"addr" gorm:"column:addr"`
-	Updated *time.Time `gorm:"autoUpdateTime;column:updated_at"`
-}
-
-func (RestaurantUpdate) TableName() string {
-	return Restaurant{}.TableName()
 }
