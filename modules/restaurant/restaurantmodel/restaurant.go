@@ -2,16 +2,27 @@ package restaurantmodel
 
 import (
 	"errors"
+	"go-simple-service/common"
 	"strings"
 	"time"
 )
 
+const EntityName = "Restaurant"
+
+type Restaurant struct {
+	common.SQLModel `json:",inline"`
+	Name            *string `json:"name" gorm:"column:name;"`
+	Addr            *string `json:"addr" gorm:"column:addr;"`
+}
+
+func (Restaurant) TableName() string {
+	return "restaurants"
+}
+
 type RestaurantCreate struct {
-	Id      int       `json:"id" gorm:"column:id;"`
-	Name    *string   `json:"name" gorm:"column:name;"`
-	Addr    *string   `json:"addr" gorm:"column:addr;"`
-	Created time.Time `json:"created_at" gorm:"autoCreateTime; column:created_at"`
-	Updated time.Time `json:"updated_at" gorm:"autoCreateTime; column:updated_at"`
+	common.SQLModel `json:",inline"`
+	Name            *string `json:"name" gorm:"column:name;"`
+	Addr            *string `json:"addr" gorm:"column:addr;"`
 }
 
 func (RestaurantCreate) TableName() string {

@@ -13,7 +13,7 @@ type ListRestaurantStore interface {
 		filter *restaurantmodel.Filter,
 		paging *common.Paging,
 		moreKeys ...string,
-	) ([]restaurantmodel.RestaurantCreate, error)
+	) ([]restaurantmodel.Restaurant, error)
 }
 
 type listRestaurantBiz struct {
@@ -27,7 +27,7 @@ func NewListRestaurantBiz(store ListRestaurantStore) *listRestaurantBiz {
 func (biz *listRestaurantBiz) ListRestaurant(
 	ctx context.Context,
 	filter *restaurantmodel.Filter,
-	paging *common.Paging) ([]restaurantmodel.RestaurantCreate, error) {
+	paging *common.Paging) ([]restaurantmodel.Restaurant, error) {
 
 	result, err := biz.store.ListDataByCondition(ctx, nil, filter, paging)
 

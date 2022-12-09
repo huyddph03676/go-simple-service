@@ -2,6 +2,7 @@ package restaurantstore
 
 import (
 	"context"
+	"go-simple-service/common"
 	"go-simple-service/modules/restaurant/restaurantmodel"
 )
 
@@ -9,8 +10,8 @@ func (s *sqlStore) Update(ctx context.Context, id int, data *restaurantmodel.Res
 	db := s.db
 	db = db.Table(restaurantmodel.RestaurantUpdate{}.TableName()).Where("id = ?", id)
 
-	if err := db.Updates(&data).Error; err != nil {
-		return err
+	if err := db.Updates(data).Error; err != nil {
+		return common.ErrDB(err)
 	}
 
 	return nil

@@ -2,10 +2,12 @@ package restaurantbiz
 
 import (
 	"context"
+	"errors"
 	"go-simple-service/modules/restaurant/restaurantmodel"
 )
 
 type UpdateRestaurantStore interface {
+	GetOne(ctx context.Context, id int) (*restaurantmodel.Restaurant, error)
 	Update(ctx context.Context, id int, data *restaurantmodel.RestaurantUpdate) error
 }
 
@@ -18,7 +20,19 @@ func NewUpdateRestaurantBiz(store UpdateRestaurantStore) *updateRestaurantBiz {
 }
 
 func (biz *updateRestaurantBiz) UpdateRestaurant(ctx context.Context, id int, data *restaurantmodel.RestaurantUpdate) error {
-	err := biz.store.Update(ctx, id, data)
+	oldData, err := biz.store.GetOne(ctx, id)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	if oldData.Status == 0 {
+		return errors.New("data deleted")
+	}
+
+	if err := biz.store.Update(ctx, id, data); err != nil {
+		return err
+	}
+
+	return nil
 }
