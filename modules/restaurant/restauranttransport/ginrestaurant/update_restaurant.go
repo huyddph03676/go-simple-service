@@ -1,25 +1,21 @@
 package ginrestaurant
 
 import (
+	"go-simple-service/common"
 	"go-simple-service/component"
 	"go-simple-service/modules/restaurant/restaurantbiz"
 	"go-simple-service/modules/restaurant/restaurantmodel"
 	"go-simple-service/modules/restaurant/restaurantstore"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
+		uid, err := common.FromBase58(ctx.Param("id"))
 		if err != nil {
-			ctx.JSON(401, gin.H{
-				"error": err.Error(),
-			})
-
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		var data restaurantmodel.RestaurantUpdate
@@ -36,12 +32,8 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 
 		biz := restaurantbiz.NewUpdateRestaurantBiz(store)
 
-		if err := biz.UpdateRestaurant(ctx.Request.Context(), id, &data); err != nil {
-			ctx.JSON(401, gin.H{
-				"error": err.Error(),
-			})
-
-			return
+		if err := biz.UpdateRestaurant(ctx.Request.Context(), int(uid.GetLocalID()), &data); err != nil {
+			panic(err)
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{

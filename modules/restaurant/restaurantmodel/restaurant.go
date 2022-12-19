@@ -11,8 +11,11 @@ const EntityName = "Restaurant"
 
 type Restaurant struct {
 	common.SQLModel `json:",inline"`
-	Name            *string `json:"name" gorm:"column:name;"`
-	Addr            *string `json:"addr" gorm:"column:addr;"`
+	Name            *string        `json:"name" gorm:"column:name;"`
+	Addr            *string        `json:"address" gorm:"column:addr;"`
+	Logo            *common.Image  `json:"logo" gorm:"column:logo;"`
+	Cover           *common.Images `json:"cover" gorm:"column:cover;"`
+	LikedCount      int            `json:"liked_count" gorm:"-"`
 }
 
 func (Restaurant) TableName() string {
@@ -21,8 +24,10 @@ func (Restaurant) TableName() string {
 
 type RestaurantCreate struct {
 	common.SQLModel `json:",inline"`
-	Name            *string `json:"name" gorm:"column:name;"`
-	Addr            *string `json:"addr" gorm:"column:addr;"`
+	Name            string         `json:"name" gorm:"column:name;"`
+	Addr            string         `json:"address" gorm:"column:addr;"`
+	Logo            *common.Image  `json:"logo" gorm:"column:logo;"`
+	Cover           *common.Images `json:"cover" gorm:"column:cover;"`
 }
 
 func (RestaurantCreate) TableName() string {
@@ -31,7 +36,7 @@ func (RestaurantCreate) TableName() string {
 
 type RestaurantUpdate struct {
 	Name    *string    `json:"name" gorm:"column:name"`
-	Addr    *string    `json:"addr" gorm:"column:addr"`
+	Addr    *string    `json:"address" gorm:"column:addr"`
 	Updated *time.Time `gorm:"autoUpdateTime;column:updated_at"`
 }
 
@@ -40,12 +45,16 @@ func (RestaurantUpdate) TableName() string {
 }
 
 func (res *RestaurantCreate) Validate() error {
-	*res.Name = strings.TrimSpace(*res.Name)
+	res.Name = strings.TrimSpace(res.Name)
 
-	if len(*res.Name) == 0 {
+	if len(res.Name) == 0 {
 		return errors.New("restaurant cannot be blank")
 	}
 
 	return nil
 
+}
+
+func (data *Restaurant) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
 }

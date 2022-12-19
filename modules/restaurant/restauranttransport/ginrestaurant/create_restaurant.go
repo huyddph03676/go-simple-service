@@ -37,6 +37,8 @@ func CreateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
+		data.GenUID(common.DbTypeRestaurant)
+
+		ctx.JSON(http.StatusOK, common.SimpleSuccessResponse(data.FakeId.String()))
 	}
 }

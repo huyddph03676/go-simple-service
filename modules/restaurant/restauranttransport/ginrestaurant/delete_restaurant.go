@@ -1,18 +1,18 @@
 package ginrestaurant
 
 import (
+	"go-simple-service/common"
 	"go-simple-service/component"
 	"go-simple-service/modules/restaurant/restaurantbiz"
 	"go-simple-service/modules/restaurant/restaurantstore"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func DeleteRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
+		uid, err := common.FromBase58(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(401, gin.H{
 				"error": err.Error(),
@@ -25,7 +25,7 @@ func DeleteRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 
 		biz := restaurantbiz.NewDeleteRestaurantBiz(store)
 
-		if err := biz.DeleteRestaurant(ctx.Request.Context(), id); err != nil {
+		if err := biz.DeleteRestaurant(ctx.Request.Context(), int(uid.GetLocalID())); err != nil {
 			ctx.JSON(401, gin.H{
 				"error": err.Error(),
 			})

@@ -6,6 +6,7 @@ import (
 	"go-simple-service/modules/restaurant/restaurantbiz"
 	"go-simple-service/modules/restaurant/restaurantmodel"
 	"go-simple-service/modules/restaurant/restaurantstore"
+	restaurantlikestore "go-simple-service/modules/restaurantlike/store"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,16 +35,21 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		store := restaurantstore.NewSQLStore(appCtx.GetMainDBConnection())
-		biz := restaurantbiz.NewListRestaurantBiz(store)
+		likeStore := restaurantlikestore.NewSQLStore(appCtx.GetMainDBConnection())
+		biz := restaurantbiz.NewListRestaurantBiz(store, likeStore)
 
 		result, err := biz.ListRestaurant(ctx.Request.Context(), &filter, &paging)
 
 		if err != nil {
-			ctx.JSON(401, gin.H{
-				"error": err.Error(),
-			})
+			panic(err)
+		}
 
-			return
+		for i := range result {
+			result[i].Mask(false)
+
+			if i == len(result)-1 {
+				paging.NextCursor = result[i].FakeId.String()
+			}
 		}
 
 		ctx.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, filter))
