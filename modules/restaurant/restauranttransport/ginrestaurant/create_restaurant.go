@@ -16,12 +16,11 @@ func CreateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		var data restaurantmodel.RestaurantCreate
 
 		if err := ctx.ShouldBind(&data); err != nil {
-			ctx.JSON(401, gin.H{
-				"error": err.Error(),
-			})
-
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
+
+		requester := ctx.MustGet(common.CurrentUser).(common.Requester)
+		data.OwnerId = requester.GetUserId()
 
 		// appCtx.GetMainDBConnection() return db cursor pointer => store = sqlStore{db: db}
 		store := restaurantstore.NewSQLStore(appCtx.GetMainDBConnection())
