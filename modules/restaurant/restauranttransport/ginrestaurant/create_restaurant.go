@@ -20,7 +20,7 @@ func CreateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		requester := ctx.MustGet(common.CurrentUser).(common.Requester)
-		data.OwnerId = requester.GetUserId()
+		data.UserId = requester.GetUserId()
 
 		// appCtx.GetMainDBConnection() return db cursor pointer => store = sqlStore{db: db}
 		store := restaurantstore.NewSQLStore(appCtx.GetMainDBConnection())
